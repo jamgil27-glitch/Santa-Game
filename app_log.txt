@@ -1,0 +1,4 @@
+Increase Santa's movement speed
+Adjust present collection collision
+Reduce the number of presents dropping at once
+Make the game easier to win
