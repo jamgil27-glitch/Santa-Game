@@ -9,9 +9,11 @@ let giftsimage;
 let instructscreen;
 let gamescreen;
 let losescreen;
-let santa = {x:400, y:450, w:150, h:150, speed:5, img:null};
-let lives = 4;
+let santa = {x:400, y:450, w:150, h:150, speed:8, img:null};
+let lives = 6;
 let score = 0;
+let level = 1;
+let giftSpeed = 2;
 
 function preload() {
   bg = loadImage("background.png");
@@ -24,6 +26,7 @@ function preload() {
 
 function setup() {
   createCanvas(800, 600);
+  
   // list: stores button data used on different screens
   btns = [
     {x:width/2.5, y:350, w:200, h:55, label:"start game", color:250},
@@ -35,6 +38,7 @@ function setup() {
 
 function draw() {
   if (santa.img === null) santa.img = santaimage;
+  
   if (screen === "start") startScreen();
   else if (screen === "instructions") instructionsScreen();
   else if (screen === "game") gameScreen();
@@ -46,6 +50,7 @@ function drawButton(bx, by, bw, bh, words, colo) {
   fill(colo);
   stroke(255);
   rect(bx, by, bw, bh);
+  
   noStroke();
   fill(0);
   textAlign(CENTER, CENTER);
@@ -55,6 +60,7 @@ function drawButton(bx, by, bw, bh, words, colo) {
 // output: displays the start screen
 function startScreen() {
   background(bg);
+  
   textAlign(CENTER);
   textStyle(BOLD);
   textSize(30);
@@ -70,9 +76,11 @@ function startScreen() {
 // output: displays the instructions screen
 function instructionsScreen() {
   background(instructscreen);
-  textSize(25);
+  
+  textSize(20);
   fill(0);
-  text("Help Santa catch the presents falling from the sky! Use the left and right arrows on your keyboard to allow Santa to get the presents. Try to get the highest score possible, but don't miss any presents or else you lose a life. If you get to 0 lives you lose.", 200, 50, 400, 400);
+  text("Help Santa catch the presents falling from the sky! Use the left and right arrows on your keyboard to allow Santa to get the presents. Try to get the highest score possible, but don't miss any presents or else you lose a life. If you get to 0 lives you lose. As your score increases you move up levels. Every 10 points you reach a new level and the presents fall faster.", 200, 60, 400, 400);
+
   drawButton(btns[2].x, btns[2].y, btns[2].w, btns[2].h, btns[2].label, btns[2].color);
 }
 
@@ -82,21 +90,32 @@ function gameScreen() {
     screen = "lose";
     return;
   }
+
+  level = floor(score / 10) + 1;
+  giftSpeed = level + 1;
+
   background(gamescreen);
+  
   makeGifts();
-  // procedure call: speed 3 controls how fast the gifts fall
-  moveGifts(3);
+  moveGifts(giftSpeed);
   moveSanta();
+
   textSize(30);
   fill(255);
   text("Score: " + score, 70, 30);
   text("Lives: " + lives, 70, 60);
+  text("Level: " + level, 70, 90);
 }
 
 // list: stores gift objects in the gifts list
 function makeGifts() {
-  if (gifts.length < 5) {
-    gifts.push({x:random(0, width - 70), y:random(-200, 0), w:70, h:70});
+  if (gifts.length < 3) {
+    gifts.push({
+      x:random(0, width - 70),
+      y:random(-200, 0),
+      w:70,
+      h:70
+    });
   }
 }
 
@@ -105,6 +124,7 @@ function makeGifts() {
 // this procedure uses sequencing, selection, and iteration
 function moveGifts(speed) {
   if (speed > 0) {
+    
     for (let i = gifts.length - 1; i >= 0; i--) {
       gifts[i].y += speed;
 
@@ -125,6 +145,7 @@ function moveGifts(speed) {
 
 // input: the arrow keys move Santa left and right
 function moveSanta() {
+  
   if (keyIsDown(LEFT_ARROW)) {
     santa.x = max(0, santa.x - santa.speed);
   }
@@ -139,34 +160,45 @@ function moveSanta() {
 // output: it displays the game over screen
 function loseScreen() {
   background(losescreen);
+  
   textAlign(CENTER);
   textStyle(BOLD);
   textSize(60);
   fill(250);
   text("Game Over! Final score: " + score, 400, 300);
+
   drawButton(btns[3].x, btns[3].y, btns[3].w, btns[3].h, btns[3].label, btns[3].color);
 }
 
-// input: user mouse clicks  buttons and the screen changes
+// input: user mouse clicks buttons and the screen changes
 function mousePressed() {
+  
   if (screen === "start") {
+    
     if (isClicked(btns[0])) {
       screen = "game";
     } 
+    
     else if (isClicked(btns[1])) {
       screen = "instructions";
     }
   } 
+  
   else if (screen === "instructions") {
+    
     if (isClicked(btns[2])) {
       screen = "start";
     }
   } 
+  
   else if (screen === "lose") {
+    
     if (isClicked(btns[3])) {
       screen = "start";
-      lives = 4;
+      lives = 6;
       score = 0;
+      level = 1;
+      giftSpeed = 2;
       gifts = [];
     }
   }
@@ -176,12 +208,14 @@ function mousePressed() {
 function isClicked(btn) {
   let xOverlap = mouseX > btn.x && mouseX < btn.x + btn.w;
   let yOverlap = mouseY > btn.y && mouseY < btn.y + btn.h;
+  
   return xOverlap && yOverlap;
 }
 
 // it checks if 2 objects are touching
 function checkCollision(a, b) {
   let xOverlap = a.x < b.x + b.w && a.x + a.w > b.x;
-  let yOverlap = a.y < b.y + b.h && a.y + a.h > b.y;
+  let yOverlap = a.y + a.h > b.y + 40 && a.y < b.y + b.h;
+  
   return xOverlap && yOverlap;
 }
