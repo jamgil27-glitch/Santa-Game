@@ -77,7 +77,7 @@ function startScreen() {
 function instructionsScreen() {
   background(instructscreen);
   
-  textSize(25);
+  textSize(20);
   fill(0);
   text("Help Santa catch the presents falling from the sky! Use the left and right arrows on your keyboard to allow Santa to get the presents. Try to get the highest score possible, but don't miss any presents or else you lose a life. If you get to 0 lives you lose. As your score increases, you move up levels. Every 10 points you reach a new level and the presents fall faster, making the game more challenging.", 200, 50, 400, 400);
 
